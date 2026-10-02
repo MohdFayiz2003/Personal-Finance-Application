@@ -3,13 +3,344 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>My Personal Finance App</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card h3 {
+            margin: 0 0 10px;
+            font-size: 16px;
+        }
+
+        .card p {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .income {
+            color: #16803c;
+        }
+
+        .expense {
+            color: #c62828;
+        }
+
+        .balance {
+            color: #1565c0;
+        }
+
+        .form-box,
+        .transactions {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .form-box h2,
+        .transactions h2 {
+            margin-top: 0;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            background: #1565c0;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .transaction {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .transaction:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-info strong {
+            display: block;
+        }
+
+        .transaction-info small {
+            color: #777;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+        }
+
+        .empty {
+            color: #777;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-    <h1>My Personal Finance App</h1>
+<div class="container">
 
-    <p>Welcome! This is my personal finance application.</p>
+    <h1>💰 My Personal Finance App</h1>
+
+    <div class="summary">
+
+        <div class="card">
+            <h3>Total Income</h3>
+            <p class="income" id="totalIncome">₹0</p>
+        </div>
+
+        <div class="card">
+            <h3>Total Expenses</h3>
+            <p class="expense" id="totalExpense">₹0</p>
+        </div>
+
+        <div class="card">
+            <h3>Balance</h3>
+            <p class="balance" id="balance">₹0</p>
+        </div>
+
+    </div>
+
+    <div class="form-box">
+
+        <h2>➕ Add Transaction</h2>
+
+        <select id="type">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+        </select>
+
+        <input
+            type="number"
+            id="amount"
+            placeholder="Amount"
+            min="0"
+            step="0.01"
+        >
+
+        <select id="category">
+            <option value="Salary">Salary</option>
+            <option value="Food">Food</option>
+            <option value="Rent">Rent</option>
+            <option value="Transport">Transport</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Bills">Bills</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <input
+            type="date"
+            id="date"
+        >
+
+        <input
+            type="text"
+            id="description"
+            placeholder="Description"
+        >
+
+        <button onclick="addTransaction()">
+            Add Transaction
+        </button>
+
+    </div>
+
+    <div class="transactions">
+
+        <h2>📋 Transactions</h2>
+
+        <div id="transactionList">
+            <p class="empty">No transactions yet.</p>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    let transactions = [];
+
+    function addTransaction() {
+
+        const type = document.getElementById("type").value;
+        const amount = parseFloat(
+            document.getElementById("amount").value
+        );
+
+        const category =
+            document.getElementById("category").value;
+
+        const date =
+            document.getElementById("date").value;
+
+        const description =
+            document.getElementById("description").value;
+
+        if (!amount || amount <= 0) {
+            alert("Please enter a valid amount.");
+            return;
+        }
+
+        const transaction = {
+            type: type,
+            amount: amount,
+            category: category,
+            date: date,
+            description: description
+        };
+
+        transactions.push(transaction);
+
+        document.getElementById("amount").value = "";
+        document.getElementById("description").value = "";
+
+        updateDashboard();
+    }
+
+
+    function updateDashboard() {
+
+        let income = 0;
+        let expense = 0;
+
+        transactions.forEach(function(transaction) {
+
+            if (transaction.type === "income") {
+                income += transaction.amount;
+            }
+
+            if (transaction.type === "expense") {
+                expense += transaction.amount;
+            }
+
+        });
+
+        const balance = income - expense;
+
+        document.getElementById("totalIncome").textContent =
+            "₹" + income.toFixed(2);
+
+        document.getElementById("totalExpense").textContent =
+            "₹" + expense.toFixed(2);
+
+        document.getElementById("balance").textContent =
+            "₹" + balance.toFixed(2);
+
+
+        const list =
+            document.getElementById("transactionList");
+
+        if (transactions.length === 0) {
+
+            list.innerHTML =
+                '<p class="empty">No transactions yet.</p>';
+
+            return;
+        }
+
+        list.innerHTML = "";
+
+        transactions.forEach(function(transaction) {
+
+            const div = document.createElement("div");
+
+            div.className = "transaction";
+
+            const sign =
+                transaction.type === "income" ? "+" : "-";
+
+            const colorClass =
+                transaction.type === "income"
+                ? "income"
+                : "expense";
+
+            div.innerHTML = `
+                <div class="transaction-info">
+                    <strong>${transaction.category}</strong>
+                    <small>
+                        ${transaction.description || "No description"}
+                        · ${transaction.date || "No date"}
+                    </small>
+                </div>
+
+                <div class="transaction-amount ${colorClass}">
+                    ${sign} ₹${transaction.amount.toFixed(2)}
+                </div>
+            `;
+
+            list.appendChild(div);
+
+        });
+
+    }
+
+</script>
 
 </body>
 </html>
