@@ -224,7 +224,7 @@
 
 <script>
 
-    let transactions = [];
+   let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
 
     function addTransaction() {
 
@@ -256,6 +256,9 @@
         };
 
         transactions.push(transaction);
+        transactions.push(transaction);
+
+localStorage.setItem("transactions", JSON.stringify(transactions));
 
         document.getElementById("amount").value = "";
         document.getElementById("description").value = "";
